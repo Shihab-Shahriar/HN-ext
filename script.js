@@ -1,30 +1,37 @@
-parser = new DOMParser();
-kpath = "#hnmain > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(3) > td:nth-child(2)";
-crpath = "#hnmain > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td:nth-child(2) > a"
 cache = {};
 
+makeAPICall = async function (user){
+	var settings = {
+		"async": true,
+		"crossDomain": true,
+		"url": `https://hacker-news.firebaseio.com/v0/user/${user}.json`,
+		"method": "GET",
+		"headers": {},
+		"data": "{}"
+	}
+	console.log(settings.url);
+	return $.ajax(settings)
+}
 
-getKarma = async function (url,x,y){
-	if (url in cache){
-		console.log(url+" in cache");
-		date = cache[url]['date'];
-		karma = cache[url]['karma'];
+getInfo = async function (user){
+	if (user in cache){
+		console.log(user+" in cache");
 	}
 	else{
-		txt = await fetch(url).then(res => res.text());
+		res = await makeAPICall(user_id);
+		console.log("RESPONSE:"+res.id);
+		cache[user] = {'date':res.created,'karma':res.karma};
+		console.log(cache[user]);
+	}
+	
+	console.log("Current cache size: " + Object.keys(cache).length);
 
-		doc = parser.parseFromString(txt, 'text/html');
-	  	karma = doc.querySelector(kpath);
-	  	karma = karma.innerHTML.trim();
-
-	  	date = doc.querySelector(crpath);
-	  	date = date.innerHTML.trim();
-
-	  	cache[url] = {'date':date,'karma':karma};
-	  	console.log("Current cache size: " + Object.keys(cache).length);
-  	}
+	d = new Date(cache[user]['date']*1000);
+	date = d.toDateString().slice(4,);
+	karma = cache[user]['karma'];
   	data = `Karma: ${karma} <br>` + 
     		`Date: ${date}`;
+
 
   	const newDiv = document.createElement("div");
   	newDiv.insertAdjacentHTML('afterbegin', data); 
@@ -37,9 +44,9 @@ $(document).ready(function() {
     $(document).tooltip({
         items: '.hnuser', 
         content: async function(callback) {
-        	url = $(this).attr('href');
-        	var rect = this.getBoundingClientRect();
-        	data = await getKarma(url,rect.right, rect.bottom);			
+        	user_id = $(this).text();
+			console.log(user_id);
+        	data = await getInfo(user_id);			
 		  	callback(data);
     	},
     	open: function(e, ui) {
@@ -52,4 +59,3 @@ $(document).ready(function() {
     })
 })
 
-console.log("Boo haa");
