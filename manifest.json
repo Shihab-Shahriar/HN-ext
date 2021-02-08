@@ -1,0 +1,22 @@
+{
+	"name": "HNExt",
+	"version": "0.1",
+	"description": "Browse HN properly",
+	"manifest_version": 2,
+	"page_action": {
+        "default_icon": {
+            "128": "img.png"
+        }
+    },
+    "icons":{
+    	"128": "img.png"
+    },
+
+    "content_scripts": [
+    	{
+    		"matches": ["https://news.ycombinator.com/*"],
+    		"js": ["jquery.min.js","jquery-ui/jquery-ui.js","script.js"]
+    	}
+    ],
+    "permissions": ["tabs"]
+}
